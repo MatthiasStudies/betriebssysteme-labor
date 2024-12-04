@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="fork-example.c" type="CppFileRunConfiguration" factoryName="CppFileRunConfiguration" nameIsGenerated="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Assignment1" TARGET_NAME="fork-example.c - Remote Host" CONFIG_NAME="fork-example.c">
+    <option name="sourceFile" value="G:\My Drive\Documents\_RealDocuments\Studium HKA\ILIAS\Betriebssysteme Labor\Aufgaben\Assignment1\fork-example.c" />
+    <option name="toolchainName" value="Remote Host" />
+    <method v="2">
+      <option name="com.jetbrains.cidr.cpp.runfile.CppFileBuildBeforeRunTaskProvider$BasicBuildBeforeRunTask" enabled="true" />
+    </method>
+  </configuration>
+</component>
