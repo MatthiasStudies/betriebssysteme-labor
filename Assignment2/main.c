@@ -277,11 +277,7 @@ int main(int argc, char *argv[]) {
     crop_image(bmp);
 
     status = save_image(bmp, "output.bmp");
-    if (status != 0) {
-        free_bmp_file(bmp);
-        return status;
-    }
 
     free_bmp_file(bmp);
-    return 0;
+    return status;
 }
