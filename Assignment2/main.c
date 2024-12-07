@@ -8,25 +8,25 @@
 #define BMP_HEADER_SIZE 54
 #define PIXEL_WIDTH 3
 
-double f_smooth[3][3] = {
+double k_smooth[3][3] = {
         {1.0/9.0, 1.0/9.0, 1.0/9.0},
         {1.0/9.0, 1.0/9.0, 1.0/9.0},
         {1.0/9.0, 1.0/9.0, 1.0/9.0}
 };
 
-double f_sharpen[3][3] = {
+double k_sharpen[3][3] = {
         {0, -1, 0},
         {-1, 5, -1},
         {0, -1, 0}
 };
 
-double f_edge[3][3] = {
+double k_edge[3][3] = {
         {0, 1, 0},
         {1, -4, 1},
         {0, 1, 0}
 };
 
-double f_emboss[3][3] = {
+double k_emboss[3][3] = {
         {-2, -1, 0},
         {-1, 1, 1},
         {0, 1, 2}
@@ -165,13 +165,13 @@ int run_filter(bmpImage *image, char *filter) {
     unsigned char *output;
 
     if (strcmp(filter, "smooth") == 0) {
-        output = apply_kernel(pixel_data, f_smooth, width, height, padding_size);
+        output = apply_kernel(pixel_data, k_smooth, width, height, padding_size);
     } else if (strcmp(filter, "sharp") == 0) {
-        output = apply_kernel(pixel_data, f_sharpen, width, height, padding_size);
+        output = apply_kernel(pixel_data, k_sharpen, width, height, padding_size);
     } else if (strcmp(filter, "edge") == 0) {
-        output = apply_kernel(pixel_data, f_edge, width, height, padding_size);
+        output = apply_kernel(pixel_data, k_edge, width, height, padding_size);
     } else if (strcmp(filter, "emboss") == 0) {
-        output = apply_kernel(pixel_data, f_emboss, width, height, padding_size);
+        output = apply_kernel(pixel_data, k_emboss, width, height, padding_size);
     } else {
         printf("Error: Unknown filter\n");
         return -1;
