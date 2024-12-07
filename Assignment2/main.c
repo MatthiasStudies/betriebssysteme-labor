@@ -36,6 +36,11 @@ double f_emboss[3][3] = {
 
 unsigned char* apply_kernel(const unsigned char *pixel_data, double kernel[3][3], int width, int height, int padding_size) {
     unsigned char *output = (unsigned char *) malloc(width * height * PIXEL_WIDTH);
+    if (output == NULL) {
+        printf("Error: Failed to allocate memory for output image\n");
+        return NULL;
+    }
+
     for (int i = 1; i < width - 1; i++) {
         for (int j = 1; j < height - 1; j++) {
             double sum[3] = {0, 0, 0};
@@ -67,9 +72,7 @@ unsigned char* apply_kernel(const unsigned char *pixel_data, double kernel[3][3]
     return output;
 }
 
-
-
-typedef struct bmpFile {
+typedef struct {
     unsigned char *header;
     unsigned char *pixel_data;
     int width;
@@ -102,6 +105,12 @@ bmpImage *read_bmp_image(char *filename) {
     int32_t width = *(int32_t *) &bmp_header[18];
     int32_t height = *(int32_t *) &bmp_header[22];
     uint16_t bit_depth = *(uint16_t *) &bmp_header[28];
+    int32_t compression = *(int32_t *) &bmp_header[30];
+
+    if (compression != 0) {
+        printf("Error: Only uncompressed bitmaps are supported\n");
+        return NULL;
+    }
 
     if (width < 3 || height < 3) {
         printf("Error: Invalid image size\n");
@@ -189,6 +198,11 @@ int crop_image(bmpImage* image) {
     int cropped_image_size = cropped_width * cropped_height * PIXEL_WIDTH + cropped_height * padding_size; // why padding_size not cropped_padding_size?????
 
     unsigned char* cropped_pixel_data = (unsigned char*) malloc(cropped_image_size);
+    if (cropped_pixel_data == NULL) {
+        printf("Error: Failed to allocate memory for cropped pixel data\n");
+        return 1;
+    }
+
     unsigned char* pixel_data = image->pixel_data;
 
     for(int row = 1; row < height - 1; row++) {
