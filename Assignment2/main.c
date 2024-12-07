@@ -7,7 +7,7 @@
 #include "filter.h"
 
 #define BMP_HEADER_SIZE 54
-#define PIXEL_WIDTH 3
+
 
 int main(int argc, char *argv[]) {
     if (argc != 3) {
@@ -52,6 +52,12 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    unsigned char *output = (unsigned char *) malloc(image_size - BMP_HEADER_SIZE);
+    if (output == NULL) {
+        printf("Error: Failed to allocate memory for output data\n");
+        return 1;
+    }
+
     bytes_read = read(fd, pixel_data, image_size - BMP_HEADER_SIZE);
     if (bytes_read != image_size - BMP_HEADER_SIZE) {
         printf("Error: Failed to read pixel data\n");
@@ -74,16 +80,16 @@ int main(int argc, char *argv[]) {
         return 0;
     }else if (strcmp(filter, "smooth") == 0) {
         printf("Applying smooth filter\n");
-        apply_filter(pixel_data, f_smooth, width, height, padding_size);
+        apply_filter(pixel_data, f_smooth, width, height, padding_size, output);
     } else if (strcmp(filter, "sharp") == 0) {
         printf("Applying sharp filter\n");
-        apply_filter(pixel_data, f_sharpen, width, height, padding_size);
+        apply_filter(pixel_data, f_sharpen, width, height, padding_size, output);
     } else if (strcmp(filter, "edge") == 0) {
         printf("Applying edge filter\n");
-        apply_filter(pixel_data, f_edge, width, height, padding_size);
+        apply_filter(pixel_data, f_edge, width, height, padding_size, output);
     } else if (strcmp(filter, "emboss") == 0) {
         printf("Applying emboss filter\n");
-        apply_filter(pixel_data, f_emboss, width, height, padding_size);
+        apply_filter(pixel_data, f_emboss, width, height, padding_size, output);
     } else {
         printf("Error: Unknown filter\n");
         return 1;
@@ -111,9 +117,9 @@ int main(int argc, char *argv[]) {
             int offset = row  * (width * PIXEL_WIDTH + padding_size) + col * PIXEL_WIDTH;
             int new_offset = (row - 1) * (cropped_width * PIXEL_WIDTH + cropped_padding_size) + (col - 1) * PIXEL_WIDTH;
 
-            cropped_pixel_data[new_offset] = pixel_data[offset];
-            cropped_pixel_data[new_offset + 1] = pixel_data[offset + 1];
-            cropped_pixel_data[new_offset + 2] = pixel_data[offset + 2];
+            cropped_pixel_data[new_offset] = output[offset];
+            cropped_pixel_data[new_offset + 1] = output[offset + 1];
+            cropped_pixel_data[new_offset + 2] = output[offset + 2];
         }
     }
 
