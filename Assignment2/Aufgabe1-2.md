@@ -1,10 +1,10 @@
 ## Aufgabe 1
-**a)**: 0x78010000 - Big Endian
+**a)**: 0x78010000 - Little Endian
 **b)**:
  ```perl
-Header-Größe: 0x280000 = 40 Bytes (Big Endian)
-Bildbreite: 0x0A000000 --LE--> 0x0000000A = 10 Pixel
-Bildhöhe: 0x0A000000 --LE--> 0x0000000A = 10 Pixel
+Header-Größe: 0x280000 = 40 Bytes (Little Endian)
+Bildbreite: 0x0A000000 --LE--> 0x0000000A = 12 Pixel
+Bildhöhe: 0x0A000000 --LE--> 0x0000000A = 12 Pixel
 Anzahl Farbebenen: 0x0100 --LE--> 0x0001 = 1 Farbebene
 Bits pro Pixel: 0x1800 --LE--> 0x0018 = 24 Bit pro Pixel
 Kompressionsmethode: 0x00000000 --LE--> 0x00000000 = keine Kompression (i guess)
@@ -30,10 +30,15 @@ Anzahl wichtiger Farben: 0x00000000 --LE--> 0x00000000
 - `A.bmp`: 0x0A000000 **x** 0x0A000000 --LE--> 0x0000000A **x** 0x0000000A = 10 **x** 10 Pixel
 - `B.bmp`: 0x09000000 **x** 0x09000000 --LE--> 0x00000009 **x** 0x00000009 = 9 **x** 9 Pixel
 - In BGR Format
+- Bild wird Bottom up gelesen
+- Padding für 4byte boundery
 
 **b)**:
 Idee: Da der Bildbereich bei `C_2.bmp` eine negative Höhe hat, müssen die Pixel in umgekehrter Reihenfolge angegeben werden.
 
 **c)**:
-C_1.bmp hat andere DPI: 0x120B0000 --LE--> 0x00000B12 = 2834 DPI
-0xC2E10000 --LE--> 0x0000E1C2 = 57794 DPI
+- Offset 62 (0x3E) Bytes -> Farbpallette existiert
+- 1 Bit pro Pixel
+- Farbpalette mit 2 Farben
+- Jede Farbe ist 4 Byte groß
+- Jede Zeile 4 Byte (inkl. 20 Bit Padding), mit 1 = Grün und 0 = Schwarz
