@@ -182,6 +182,55 @@ void print_rle(RLE* rle, uint8_t counts_per_line) {
     printf("\n");
 }
 
+void printChar(char c) {
+    for (int i = 7; i >= 0; i--) {
+        printf("%d", (c >> i) & 1);
+    }
+    printf("\n");
+}
+void printChar4(char c) {
+    for (int i = 3; i >= 0; i--) {
+        printf("%d", (c >> i) & 1);
+    }
+    printf("\n");
+}
+
+size_t insert_bit_count(char *data, char bit, uint64_t count, size_t i, bool complete) {
+    char o = bit << 3;
+    if (count < 4) {
+        printf("small: %d\n", count);
+        o |= count;
+
+        if (complete) {
+            data[i++] = o << 4;
+        } else {
+            data[i - 1] |= o;
+//            i++;
+        }
+//        printf("Existing: \n");
+//        printChar(data[i]);
+        printChar4(o);
+    } else {
+        printf("big: %d (%d)\n", count, complete);
+        o |= 0b01000000;
+        o |= count;
+
+        if (complete) {
+            data[i++] = o;
+        } else {
+//            printf("exisiting: ");
+//            printChar(data[i - 1]);
+            data[i - 1] |= (o >> 4) & 0xFF;
+            data[i++] = o << 4;
+        }
+
+//                    data[i++] = o;
+        printChar(o);
+    }
+
+    return i;
+}
+
 char* serialize_rle(RLE *rle, size_t* size) {
     RLENode *node = rle->head;
     *size = rle->size * sizeof(uint64_t);
@@ -193,50 +242,218 @@ char* serialize_rle(RLE *rle, size_t* size) {
 
     size_t i = 0;
     char type = 0;
-    bool complete = false;
+    bool complete = true;
     while (node) {
         uint64_t count = node->count;
 
-        data[i++] = count & 0xFF;
-        data[i++] = (count >> 8) & 0xFF;
-        data[i++] = (count >> 16) & 0xFF;
-        data[i++] = (count >> 24) & 0xFF;
-        data[i++] = type;
+        type = count >> 63;
+        char c = 0;
 
-        printf("count: %zu %lu\n", i, count);
+        printf("\ncount: %lu\n", count);
 
+        // 2 -> 0b0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0010
+
+        for(int j = 0; j < 64; j++) {
+            char next = count >> 63;
+            if (next == type) {
+                c++;
+            } else {
+                i = insert_bit_count(data, type, c, i, complete);
+                if (c < 4) {
+                    complete = !complete;
+                }
+//                char o = type << 3;
+//                if (c < 4) {
+//                    printf("small: %d\n", c);
+//                    o |= c;
+//
+//                    if (complete) {
+//                        data[i++] = o << 4;
+//                        complete = false;
+//                    } else {
+//                        data[i] |= o;
+//                        complete = true;
+//                    }
+//                    printChar4(o);
+//                } else {
+//                    printf("big: %d\n", c);
+//                    o |= 0b01000000;
+//                    o |= c;
+//
+//                    if (complete) {
+//                        data[i++] = o;
+//                    } else {
+//                        data[i] |= o << 4;
+//                        data[i + 1] = o >> 4;
+//                    }
+//
+////                    data[i++] = o;
+//                    printChar(o);
+//                }
+                c = 1;
+                type = next;
+            }
+            count <<= 1;
+        }
+
+        if (c > 0) {
+//            printf("insert: %d, %d, %zu, %d\n", type, c, i, complete);
+            i = insert_bit_count(data, type, c, i, complete);
+            if (c < 4) {
+                complete = !complete;
+            }
+//            char o = type << 3;
+//            if (c < 4) {
+//                printf("small: %d\n", c);
+//                o |= c;
+//
+//                if (complete) {
+//                    data[i++] = o << 4;
+//                    complete = false;
+//                } else {
+//                    data[i] |= o;
+//                    complete = true;
+//                }
+//                printChar4(o);
+//            } else {
+//                printf("big: %d\n", c);
+//                o |= 0b01000000;
+//                o |= c;
+//
+//                if (complete) {
+//                    data[i++] = o;
+//                } else {
+//                    data[i] |= o << 4;
+//                    data[i + 1] = o >> 4;
+//                }
+//
+////                    data[i++] = o;
+//                printChar(o);
+//            }
+        }
+
+//        if (i > 5) {
+//            break;
+//        }
+
+
+
+
+//    break;
+
+
+
+
+//        data[i++] = count & 0xFF;
+//        data[i++] = (count >> 8) & 0xFF;
+//        data[i++] = (count >> 16) & 0xFF;
+//        data[i++] = (count >> 24) & 0xFF;
+//        data[i++] = type;
+//
+//        printf("count: %zu %lu\n", i, count);
+//
         node = node->next;
-
+//
         type ^= 1;
+    }
+    printf("Bin Data\n");
+    for (int j = 0; j < 10; j++) {
+        printChar(data[j]);
     }
 
     return data;
 
 }
 
+
 void deserialize_rle(RLE *rle, const char *data, size_t size) {
+
+//    char *data = malloc(sizeof(char) * 2);
+//    data[0] = 0b01111110;
+//    data[1] = 0b10010001;
+//    size = 2;
+
     rle->size = size / sizeof(uint64_t);
     rle->head = NULL;
     rle->tail = NULL;
 
     size_t i = 0;
     printf("size: %lu\n", size);
+    bool complete = true;
+
+    size_t global = 0;
+
+    bool reading = false;
+    bool isExtended = false;
+    char targetBit = 0;
+    uint8_t buildCount = 0;
+    char remainingBits = 0;
+    char totalBitsRead = 0;
+
+    uint64_t count = 0;
+
     while (i < size) {
-        uint64_t count = 0;
-        count |= data[i++];
-        count |= data[i++] << 8;
-        count |= data[i++] << 16;
-        count |= data[i++] << 24;
+
+
+        for (int j = 7; j >= 0; j--) {
+            char bit = (data[i] >> j) & 1;
+
+            printf("%d\n", bit);
+
+            if (!reading) {
+//                printf("Setting target bit: %d\n", bit);
+                targetBit = bit;
+                j--;
+                isExtended = (data[i] >> j) & 1;
+                printf("%d\n", isExtended);
+//                printf("Is extended: %d\n", isExtended);
+
+                if (isExtended) {
+                    remainingBits = 6;
+                } else {
+                    remainingBits = 2;
+                }
+
+//                printf("target bit: %d %d\n", targetBit, isExtended);
+
+                reading = true;
+                continue;
+            }
+
+
+
+            buildCount <<= 1;
+            buildCount |= bit;
+            remainingBits--;
+
+            if (remainingBits == 0) {
+                totalBitsRead += buildCount;
+
+                printf("Adding %lu * %d to count\n", buildCount, targetBit);
+
+                for (int k = 0; k < buildCount; k++) {
+                    count <<= 1;
+                    count |= targetBit;
+                }
+
+                if (totalBitsRead == 64) {
+                    printf("Constructed count: %lu\n---\n", count);
+                    append_to_rle(rle, count);
+                    count = 0;
+                    totalBitsRead = 0;
+                }
+
+                buildCount = 0;
+                reading = false;
+            }
+        }
         i++;
 
-        if (i > 0 && count == 0) {
-            break;
-        }
 
-        printf("count: %zu %lu\n", i, count);
+//        printf("count: %zu %lu\n", i, count);
 
 
 
-        append_to_rle(rle, count);
+//        append_to_rle(rle, count);
     }
 }
