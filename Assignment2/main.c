@@ -27,9 +27,9 @@ double k_edge[3][3] = {
 };
 
 double k_emboss[3][3] = {
-        {-2, -1, 0},
-        {-1, 1, 1},
-        {0, 1, 2}
+        {2, 1, 0},
+        {1, 1, -1},
+        {0, -1, -2}
 };
 
 
@@ -82,7 +82,7 @@ typedef struct {
 } bmpImage;
 
 bmpImage *read_bmp_image(char *filename) {
-    int fd = open(filename, O_RDWR);
+    int fd = open(filename, O_RDONLY);
     if (fd < 0) {
         printf("Error: Failed to open file\n");
         return NULL;
