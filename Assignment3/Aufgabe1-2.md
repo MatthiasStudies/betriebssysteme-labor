@@ -47,4 +47,9 @@ out = in | 00000100
 ```
 
 
+## Aufgabe 3
+
+**a)**
+
+Woher weiß man, dass eine kodierte Zahl aufhört? Wir wissen wie viel Bits jede Zahl haben sollte.
 
